@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # ── Webhook Server (Node.js) ──────────────────────────
+  webhook:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: wa-webhook
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:3000"
+      - "${ADMIN_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wa-network
+    volumes:
+      - ./backups:/app/backups
+      - ./app/src/ai/flows.json:/app/src/ai/flows.json
+
+  # ── PostgreSQL ────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: wa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-whatsapp_auto}
+      POSTGRES_USER: ${POSTGRES_USER:-whatsapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cambia_esta_password_segura}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - wa-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-whatsapp} -d ${POSTGRES_DB:-whatsapp_auto}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Cloudflare Tunnel (expone webhook HTTPS gratis) ──
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: wa-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - wa-network
+    depends_on:
+      - webhook
+
+networks:
+  wa-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

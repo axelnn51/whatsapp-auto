@@ -1,0 +1,136 @@
+{
+  "trustpilot_url": "https://es.trustpilot.com/review/cdkeysperu.com",
+  "website_url": "https://cdkeysperu.com",
+  "whatsapp_number": "+51 907 463 313",
+
+  "payment_info": "Puedes pagar por cualquiera de estos métodos:\n\n💜 *Yape*: 907 463 313\n💙 *Plin*: 907 463 313\n🏦 *BCP*: (consultar número de cuenta)\n🌐 *PayPal*: (consultar)\n\nCuando hayas pagado, envíame el comprobante o captura por aquí y te envío tu licencia al toque ⚡",
+
+  "greeting_responses": [
+    "Hola! 👋 Bienvenido a CDKeysPeru!\nTenemos licencias digitales originales de Windows, Office, antivirus y más\n\nEn qué te puedo ayudar? 😊",
+    "Hola! Qué tal 👋\nGracias por escribirnos! Tenemos licencias originales con entrega inmediata\n\nQué producto estás buscando?",
+    "Hey! Bienvenido a CDKeysPeru 🙌\nVendemos licencias digitales originales con garantía\n\nCuéntame, qué necesitas?"
+  ],
+
+  "farewell_responses": [
+    "Gracias a ti por tu compra! 🙌\nSi necesitas ayuda con la instalación o activación, escríbeme sin problema\n\nTe agradecería mucho si nos dejas tu opinión aquí 👉 {trustpilot_url}\n\nQue tengas buen día! 😊",
+    "Muchas gracias por confiar en nosotros! 💪\nRecuerda que tienes garantía y soporte incluido\n\nSi tienes un minutito, nos ayudaría mucho tu reseña 👉 {trustpilot_url}\n\nÉxitos! ✨"
+  ],
+
+  "fallback_responses": [
+    "Mmm no estoy seguro de eso, déjame verificar y te confirmo 👍",
+    "Buena pregunta, dame un momento que consulto eso",
+    "Déjame revisar eso y te respondo en breve 😊"
+  ],
+
+  "products": {
+    "windows_11": {
+      "name": "Windows 11 Pro",
+      "price": "S/ 30",
+      "description": "Licencia permanente 1 PC Original",
+      "features": "Máximo rendimiento y seguridad",
+      "url": "https://cdkeysperu.com/product/windows-11-pro/",
+      "keywords": ["windows 11", "win 11", "win11", "w11"],
+      "info_message": "Windows 11 Pro 🖥️\n\n✅ Licencia permanente para 1 PC\n✅ Original con clave de 25 dígitos\n✅ Descarga oficial de Microsoft\n✅ Garantía de activación\n💰 Precio: S/ 30\n\nTe interesa? Te paso los datos de pago 👍"
+    },
+    "windows_10": {
+      "name": "Windows 10 Pro",
+      "price": "S/ 30",
+      "description": "Licencia permanente 1 PC Original",
+      "features": "Actualizable gratis a Windows 11 Pro",
+      "url": "https://cdkeysperu.com/product/windows-10-pro/",
+      "keywords": ["windows 10", "win 10", "win10", "w10"],
+      "info_message": "Windows 10 Pro 🖥️\n\n✅ Licencia permanente para 1 PC\n✅ Original con clave de 25 dígitos\n✅ Actualizable gratis a Windows 11\n✅ Garantía de activación\n💰 Precio: S/ 30\n\nLo quieres? Te paso los datos para el pago"
+    },
+    "office_2024": {
+      "name": "Office 2024 Pro Plus",
+      "price": "S/ 35",
+      "description": "Licencia Permanente 1 PC",
+      "features": "La versión más potente, sin suscripciones",
+      "url": "https://cdkeysperu.com/product/office-professional-plus-ltsc-2024/",
+      "keywords": ["office 2024", "office24"],
+      "info_message": "Office 2024 Pro Plus 📎\n\n✅ Incluye Word, Excel, PowerPoint, Outlook y más\n✅ Licencia permanente, pago único\n✅ Para 1 PC con Windows\n✅ Clave original de 25 dígitos\n💰 Precio: S/ 35\n\nQuieres comprarlo? Te paso los datos de pago 😊"
+    },
+    "office_2021": {
+      "name": "Office 2021 Pro Plus",
+      "price": "S/ 30",
+      "description": "Permanente 1 PC Original",
+      "features": "Licencia permanente, pago único",
+      "url": "https://cdkeysperu.com/product/office-professional-plus-2021-permanente/",
+      "keywords": ["office 2021", "office21"],
+      "info_message": "Office 2021 Pro Plus 📎\n\n✅ Word, Excel, PowerPoint, Outlook y más\n✅ Licencia permanente, pago único\n✅ Para 1 PC con Windows\n💰 Precio: S/ 30\n\nTe interesa? Te mando los datos de pago"
+    },
+    "office_365": {
+      "name": "Cuenta Office 365 Pro Plus",
+      "price": "S/ 40",
+      "description": "5 Dispositivos – Windows, macOS, iOS y Android",
+      "features": "Cuenta original con acceso completo",
+      "url": "https://cdkeysperu.com/product/cuenta-office-pro-plus-365/",
+      "keywords": ["office 365", "365", "office365", "cuenta office"],
+      "info_message": "Cuenta Office 365 Pro Plus ☁️\n\n✅ Para 5 dispositivos (PC, Mac, celular, tablet)\n✅ Word, Excel, PowerPoint, Outlook, OneDrive\n✅ Garantía de 12 meses\n✅ Cambias la contraseña al ingresar\n💰 Precio: S/ 40\n\nDale? Te paso los datos de pago 👍"
+    },
+    "eset": {
+      "name": "ESET NOD32 Antivirus",
+      "price": "S/ 45",
+      "description": "23 Meses – Licencia Original",
+      "features": "Protección premium por casi 2 años",
+      "url": "https://cdkeysperu.com/product/eset-nod32-antivirus-23-meses/",
+      "keywords": ["eset", "nod32", "antivirus"],
+      "info_message": "ESET NOD32 Antivirus 🛡️\n\n✅ 23 meses de protección (casi 2 años!)\n✅ Licencia original\n✅ Protege contra virus, ransomware y más\n💰 Precio: S/ 45\n\nTe lo llevas? Te mando los datos de pago"
+    },
+    "adobe_acrobat": {
+      "name": "Adobe Acrobat Pro DC 2020",
+      "price": "S/ 45",
+      "description": "Licencia Permanente 1 PC",
+      "features": "Edición PDF profesional vitalicia",
+      "url": "https://cdkeysperu.com/product/adobe-acrobat-pro-dc-2020/",
+      "keywords": ["acrobat", "adobe", "pdf"],
+      "info_message": "Adobe Acrobat Pro DC 2020 📄\n\n✅ Editor PDF profesional completo\n✅ Licencia permanente para 1 PC\n✅ Crear, editar, firmar PDFs\n💰 Precio: S/ 45\n\nLo quieres? Te paso los datos de pago"
+    },
+    "project": {
+      "name": "Microsoft Project 2021",
+      "price": "S/ 30",
+      "description": "Licencia Digital 1 PC",
+      "features": "Licencia perpetua para gestión profesional",
+      "url": "https://cdkeysperu.com/product/microsoft-project-professional-2021/",
+      "keywords": ["project", "proyecto"],
+      "info_message": "Microsoft Project Professional 2021 📊\n\n✅ Gestión profesional de proyectos\n✅ Licencia permanente para 1 PC\n💰 Precio: S/ 30\n\nTe interesa? Te paso los datos"
+    }
+  },
+
+  "category_responses": {
+    "windows": {
+      "keywords": ["windows", "win"],
+      "message": "Tenemos estas versiones de Windows 🖥️\n\n1️⃣ Windows 11 Pro — S/ 30\n2️⃣ Windows 10 Pro — S/ 30\n\nAmbas son licencias permanentes originales con garantía\n\nCuál necesitas?"
+    },
+    "office": {
+      "keywords": ["office", "word", "excel", "powerpoint"],
+      "message": "Estos son nuestros paquetes de Office 📎\n\n1️⃣ Office 2024 Pro Plus — S/ 35 (permanente, 1 PC)\n2️⃣ Office 2021 Pro Plus — S/ 30 (permanente, 1 PC)\n3️⃣ Cuenta Office 365 Pro Plus — S/ 40 (5 dispositivos)\n\nCuál se ajusta a lo que necesitas?"
+    },
+    "antivirus": {
+      "keywords": ["antivirus", "virus", "protección", "proteccion", "seguridad"],
+      "message": "Para antivirus tenemos ESET NOD32 🛡️\n\n✅ 23 meses de protección — S/ 45\n\nEs la mejor relación calidad-precio\nTe interesa?"
+    },
+    "pdf": {
+      "keywords": ["pdf", "editar pdf", "editor"],
+      "message": "Para editar PDFs tenemos Adobe Acrobat Pro DC 📄\n\n✅ Licencia permanente — S/ 45\n\nEs la versión profesional completa\nTe lo llevas?"
+    }
+  },
+
+  "catalog_message": "Estos son nuestros productos principales 📋\n\n🖥️ *Windows*\n  Windows 10/11 Pro — desde S/ 30\n\n📎 *Office*\n  Office 2021 — S/ 30\n  Office 2024 — S/ 35\n  Office 365 (5 disp.) — S/ 40\n\n🛡️ *Antivirus*\n  ESET NOD32 23 meses — S/ 45\n\n📄 *PDF*\n  Adobe Acrobat Pro — S/ 45\n\n📊 *Project*\n  MS Project 2021 — S/ 30\n\nTodos con entrega inmediata y garantía ⚡\nCuál te interesa?",
+
+  "confirm_purchase_responses": [
+    "Perfecto! 🙌 Te paso los datos de pago:",
+    "Dale! 👍 Aquí van los datos para el pago:",
+    "Genial! Te mando los datos de pago 💪"
+  ],
+
+  "waiting_payment_responses": [
+    "Listo! Cuando hayas pagado envíame el comprobante o la captura por aquí y te mando tu licencia al toque ⚡",
+    "Perfecto, quedo atento a tu comprobante de pago 👀 Apenas lo confirme te envío todo"
+  ],
+
+  "payment_confirmed_responses": [
+    "Pago recibido! ✅ Dame unos minutos que preparo tu licencia y te la envío con la guía de instalación 🚀",
+    "Confirmado! ✅ Ya te preparo todo, en un momento te envío tu licencia + guía de instalación"
+  ]
+}
