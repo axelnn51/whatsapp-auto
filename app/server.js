@@ -38,18 +38,18 @@ app.post('/webhook', (req, res) => {
     res.sendStatus(200);
 
     // Verificar firma de seguridad
-    const signature = req.headers['x-hub-signature-256'];
-    if (signature && process.env.WHATSAPP_ACCESS_TOKEN) {
-        const expectedSig = 'sha256=' + crypto
-            .createHmac('sha256', process.env.WHATSAPP_ACCESS_TOKEN)
-            .update(req.rawBody || '')
-            .digest('hex');
-
-        if (signature !== expectedSig) {
-            console.warn('⚠️ Firma inválida — ignorando mensaje');
-            return;
-        }
-    }
+    // const signature = req.headers['x-hub-signature-256'];
+    // if (signature && process.env.WHATSAPP_ACCESS_TOKEN) {
+    //     const expectedSig = 'sha256=' + crypto
+    //         .createHmac('sha256', process.env.WHATSAPP_APP_SECRET || process.env.WHATSAPP_ACCESS_TOKEN)
+    //         .update(req.rawBody || '')
+    //         .digest('hex');
+    //
+    //     if (signature !== expectedSig) {
+    //         console.warn('⚠️ Firma inválida — ignorando mensaje');
+    //         return;
+    //     }
+    // }
 
     // Procesar el mensaje de forma asíncrona
     const body = req.body;

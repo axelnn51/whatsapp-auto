@@ -12,7 +12,7 @@ async function generateResponse(conversationHistory, newMessage) {
         throw new Error('GEMINI_API_KEY no configurada');
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     // Obtener los datos frescos de flows.json para que Gemini sepa los precios exactos
     const flowData = flows.loadFlows();
