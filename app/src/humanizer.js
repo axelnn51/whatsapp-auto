@@ -121,6 +121,10 @@ function maybeSplitMessage(text) {
  * Verificar si estamos en horario de atención
  */
 function isWithinBusinessHours() {
+    // Modo 24/7: si el rango cubre las 24h, siempre responder
+    if (HOURS_START === 0 && HOURS_END >= 24) return true;
+    if (HOURS_START === HOURS_END) return true; // edge case: siempre activo
+
     const now = new Date();
     // Obtener hora en timezone del negocio
     const timeStr = now.toLocaleString('en-US', { timeZone: TIMEZONE, hour12: false });
