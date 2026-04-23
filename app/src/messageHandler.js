@@ -155,8 +155,11 @@ async function handleIncomingMessage(msg, contactInfo) {
         console.log('   🧠 Generando respuesta...');
         const flowResult = await generateResponse(history, text, conversation.id);
         
-        // Extraer respuesta del objeto (o usar como string si es fallback directo)
+        // Extraer respuesta del objeto
         let aiResponse = typeof flowResult === 'string' ? flowResult : flowResult.response;
+
+        // Convertir a array si no lo es
+        const messages = Array.isArray(aiResponse) ? aiResponse : [aiResponse];
 
         // Actualizar estado en DB si el flujo lo indicó
         if (typeof flowResult === 'object' && flowResult.newState) {
@@ -170,37 +173,33 @@ async function handleIncomingMessage(msg, contactInfo) {
             }
             if (flowResult.alertAdmin) {
                 console.log(`💰 ALERTA DE VENTA: ${contactInfo.profile?.name || from} ha enviado un comprobante o necesita ayuda con su compra!`);
-                // Aquí podrías integrar un bot de Telegram que te envíe un mensaje a ti
             }
         }
 
-        // ── PASO 5: Decidir si dividir mensaje ────────
-        const messageParts = maybeSplitMessage(aiResponse);
-
-        // ── PASO 6: Enviar con delay humanizado ───────
-        for (let i = 0; i < messageParts.length; i++) {
-            const part = messageParts[i];
+        // ── PASO 5: Enviar mensajes (soporta múltiples) ──
+        for (let i = 0; i < messages.length; i++) {
+            const msg = messages[i];
 
             if (i === 0) {
-                // Primer mensaje: delay de "escribiendo" completo
-                await delayBeforeSend(part);
+                // Primer mensaje: delay corto de "escribiendo"
+                await delayBeforeSend(msg);
             } else {
-                // Mensajes siguientes: delay más corto entre partes
+                // Mensajes siguientes: pausa corta entre envíos
                 await delayBetweenSplitMessages();
             }
 
-            await sendMessage(from, part);
+            await sendMessage(from, msg);
             await saveMessage(
                 conversation.id,
                 contact.id,
                 `out_${Date.now()}_${i}`,
                 'outgoing',
-                part,
+                msg,
                 { aiGenerated: true }
             );
         }
 
-        console.log(`✅ Respuesta enviada a ${contactInfo.profile?.name || from}`);
+        console.log(`✅ ${messages.length} mensaje(s) enviado(s) a ${contactInfo.profile?.name || from}`);
 
     } catch (err) {
         console.error(`❌ Error procesando mensaje de ${from}:`, err);

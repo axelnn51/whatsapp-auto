@@ -162,13 +162,13 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
     // ── SIEMPRE: Si menciona un producto específico ───
     const product = findProduct(text);
     if (product) {
-        return { response: product.info_message, newState: 'product_info', product: product.id };
+        return { response: ['Si tenemos disponible 🧑🏻💻', product.info_message], newState: 'product_info', product: product.id };
     }
 
     // ── SIEMPRE: Si menciona una categoría ────────────
     const category = findCategory(text);
     if (category) {
-        return { response: category.message, newState: 'catalog' };
+        return { response: ['Si tenemos disponible 🧑🏻💻🙌🏻', category.message], newState: 'catalog' };
     }
 
     // ── Lógica por estado ─────────────────────────────
