@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_URL = 'https://graph.facebook.com/v25.0';
+const API_URL = 'https://graph.facebook.com/v21.0';
 const PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 
