@@ -91,26 +91,24 @@ async function handleIncomingMessage(msg, contactInfo) {
         }
 
         // ── Verificar horario de atención ─────────
-        if (!isWithinBusinessHours()) {
-            console.log('🌙 Fuera de horario de atención');
-            
-            // Solo enviar mensaje de fuera de horario una vez por sesión
-            const history = await getConversationHistory(contact.id, 5);
-            const recentOutOfHours = history.some(m => 
-                m.direction === 'outgoing' && 
-                m.content.includes('fuera de horario')
-            );
-
-            if (!recentOutOfHours) {
-                const outMsg = getOutOfHoursMessage();
-                await delayBeforeRead();
-                await markAsRead(messageId);
-                await delayBeforeSend(outMsg);
-                const sentMsg = await sendMessage(from, outMsg);
-                await saveMessage(conversation.id, contact.id, `out_${Date.now()}`, 'outgoing', outMsg, { aiGenerated: true });
-            }
-            return;
-        }
+        // NOTA: Desactivado para pruebas. Descomentar para producción.
+        // if (!isWithinBusinessHours()) {
+        //     console.log('🌙 Fuera de horario de atención');
+        //     const history = await getConversationHistory(contact.id, 5);
+        //     const recentOutOfHours = history.some(m => 
+        //         m.direction === 'outgoing' && 
+        //         m.content.includes('fuera de horario')
+        //     );
+        //     if (!recentOutOfHours) {
+        //         const outMsg = getOutOfHoursMessage();
+        //         await delayBeforeRead();
+        //         await markAsRead(messageId);
+        //         await delayBeforeSend(outMsg);
+        //         await sendMessage(from, outMsg);
+        //         await saveMessage(conversation.id, contact.id, `out_${Date.now()}`, 'outgoing', outMsg, { aiGenerated: true });
+        //     }
+        //     return;
+        // }
 
         // ── Detección de escalamiento a humano ────
         const humanPhrases = [
