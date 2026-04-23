@@ -72,9 +72,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: wa-tunnel
     restart: unless-stopped
-    command: tunnel run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       - wa-network
     depends_on:
