@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_URL = 'https://graph.facebook.com/v21.0';
+const API_URL = 'https://graph.facebook.com/v25.0';
 const PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 
@@ -50,16 +50,24 @@ async function markAsRead(messageId) {
 
 /**
  * Enviar indicador de "escribiendo..." (typing)
- * Nota: La Cloud API no tiene endpoint nativo de typing indicator,
- * pero marcar como leído + delay crea el efecto esperado.
- * Si Meta habilita typing indicators en el futuro, se actualizará aquí.
+ * Usa el endpoint oficial de Meta para mostrar el bubble de escritura.
+ * Requiere el message_id del mensaje recibido del usuario.
  */
-async function sendTypingIndicator(to) {
-    // Actualmente la Cloud API no soporta typing indicators directamente.
-    // El efecto se logra con: mark_as_read → delay → send_message
-    // Lo cual ya se maneja en el humanizer.
-    // Este método existe como placeholder para futura compatibilidad.
-    return true;
+async function sendTypingIndicator(messageId) {
+    try {
+        await api.post('/messages', {
+            messaging_product: 'whatsapp',
+            status: 'read',
+            message_id: messageId,
+            typing_indicator: {
+                type: 'text'
+            }
+        });
+        console.log('✍️ Indicador de escritura enviado');
+    } catch (err) {
+        // No es crítico si falla — continuar sin typing
+        console.warn('⚠️ No se pudo enviar typing indicator:', err.response?.data?.error?.message || err.message);
+    }
 }
 
 /**

@@ -1,4 +1,4 @@
-const { sendMessage, markAsRead } = require('./whatsapp');
+const { sendMessage, markAsRead, sendTypingIndicator } = require('./whatsapp');
 const { generateResponse } = require('./ai/engine');
 const {
     delayBeforeRead,
@@ -146,8 +146,9 @@ async function handleIncomingMessage(msg, contactInfo) {
         // ── PASO 1: Delay antes de marcar como leído ──
         await delayBeforeRead();
 
-        // ── PASO 2: Marcar como leído (✓✓ azul) ──────
+        // ── PASO 2: Marcar como leído (✓✓ azul) + typing ──
         await markAsRead(messageId);
+        await sendTypingIndicator(messageId);
 
         // ── PASO 3: Obtener historial para contexto ───
         const history = await getConversationHistory(contact.id, 15);
