@@ -68,8 +68,33 @@ app.post('/webhook', (req, res) => {
                         const msg = messages[i];
                         const contact = contacts[i] || {};
 
-                        // Ignorar mensajes de estado (read receipts, etc.)
-                        if (msg.type === 'system' || !msg.text) continue;
+                        // Ignorar mensajes de estado
+                        if (msg.type === 'system') continue;
+
+                        // Extraer texto según tipo de mensaje
+                        let textContent = null;
+                        if (msg.type === 'text') {
+                            textContent = msg.text?.body;
+                        } else if (msg.type === 'interactive') {
+                            // Click en botón o selección de lista
+                            const interactive = msg.interactive;
+                            if (interactive?.type === 'button_reply') {
+                                textContent = interactive.button_reply.id;
+                                console.log(`🔘 Botón: "${interactive.button_reply.title}" (${interactive.button_reply.id})`);
+                            } else if (interactive?.type === 'list_reply') {
+                                textContent = interactive.list_reply.id;
+                                console.log(`📋 Lista: "${interactive.list_reply.title}" (${interactive.list_reply.id})`);
+                            }
+                        } else if (msg.type === 'image' || msg.type === 'document') {
+                            // Posible comprobante de pago
+                            textContent = msg.image?.caption || msg.document?.caption || 'comprobante';
+                        }
+
+                        if (!textContent) continue;
+
+                        // Inyectar el texto extraído en msg.text para compatibilidad
+                        msg.text = msg.text || {};
+                        msg.text.body = textContent;
 
                         handleIncomingMessage(msg, contact).catch(err => {
                             console.error('❌ Error procesando mensaje:', err.message);

@@ -7,8 +7,6 @@ const FLOWS_PATH = path.join(__dirname, 'flows.json');
 let flowsData = null;
 let flowsLastModified = 0;
 
-// ── Cargar flujos ─────────────────────────────────────
-
 function loadFlows() {
     try {
         const stat = fs.statSync(FLOWS_PATH);
@@ -16,8 +14,7 @@ function loadFlows() {
             const raw = fs.readFileSync(FLOWS_PATH, 'utf-8');
             flowsData = JSON.parse(raw);
             flowsLastModified = stat.mtimeMs;
-            const productCount = Object.keys(flowsData.products || {}).length;
-            console.log(`📋 Flujos cargados: ${productCount} productos`);
+            console.log(`📋 Flujos cargados: ${Object.keys(flowsData.products || {}).length} productos`);
         }
         return flowsData;
     } catch (err) {
@@ -42,24 +39,6 @@ function isGreeting(text) {
         lower.startsWith(g + ',') || lower.startsWith(g + '!') || lower.startsWith(g + '.'));
 }
 
-function isFarewell(text) {
-    const farewells = ['gracias', 'chau', 'bye', 'adiós', 'adios', 'hasta luego',
-        'nos vemos', 'ok gracias', 'listo gracias', 'dale gracias',
-        'muchas gracias', 'thanks', 'excelente gracias', 'genial gracias',
-        'perfecto gracias', 'buenisimo', 'grax', 'mil gracias'];
-    const lower = text.toLowerCase().trim();
-    return farewells.some(f => lower === f || lower.startsWith(f + ' ') ||
-        lower.startsWith(f + ',') || lower.startsWith(f + '!'));
-}
-
-function isAffirmative(text) {
-    const yes = ['si', 'sí', 'dale', 'va', 'ok', 'okay', 'claro', 'por favor',
-        'porfa', 'quiero', 'lo quiero', 'me interesa', 'va va', 'sip',
-        'de una', 'manda', 'vamos', 'perfecto', 'listo', 'ya', 'pues'];
-    const lower = text.toLowerCase().trim();
-    return yes.some(y => lower === y || lower.startsWith(y + ' ') || lower.startsWith(y + ','));
-}
-
 function isPaymentProof(text) {
     const payment = ['pagué', 'pague', 'ya pagué', 'ya pague', 'ya transferí',
         'ya transferi', 'listo el pago', 'ya yapee', 'ya te yapee', 'yapee',
@@ -69,31 +48,30 @@ function isPaymentProof(text) {
     return payment.some(p => lower.includes(p));
 }
 
-function isCatalogRequest(text) {
-    const catalog = ['productos', 'catálogo', 'catalogo', 'qué tienen', 'que tienen',
-        'qué venden', 'que venden', 'lista', 'todo', 'precios'];
+function isAffirmative(text) {
+    const yes = ['si', 'sí', 'dale', 'va', 'ok', 'okay', 'claro', 'por favor',
+        'porfa', 'quiero', 'lo quiero', 'me interesa', 'sip', 'de una', 'vamos', 'ya'];
     const lower = text.toLowerCase().trim();
-    return catalog.some(c => lower.includes(c));
+    return yes.some(y => lower === y || lower.startsWith(y + ' ') || lower.startsWith(y + ','));
 }
 
-function isPaymentQuestion(text) {
-    const pay = ['cómo pago', 'como pago', 'métodos de pago', 'metodos de pago',
-        'formas de pago', 'yape', 'plin', 'paypal', 'transferencia', 'cómo compro',
-        'como compro', 'datos de pago'];
-    const lower = text.toLowerCase().trim();
-    return pay.some(p => lower.includes(p));
-}
-
-// ── Buscar producto por keywords ──────────────────────
+// ── Buscar producto por ID o keywords ─────────────────
 
 function findProduct(text) {
     const data = loadFlows();
-    const lower = text.toLowerCase();
+    const lower = text.toLowerCase().trim();
+
+    // Primero buscar por ID exacto (desde botones/listas)
+    if (data.products[lower]) {
+        const p = data.products[lower];
+        return { id: lower, ...p };
+    }
+
+    // Luego por keywords
     let bestMatch = null;
     let bestScore = 0;
-
     for (const [id, product] of Object.entries(data.products || {})) {
-        for (const kw of product.keywords) {
+        for (const kw of product.keywords || []) {
             if (lower.includes(kw.toLowerCase())) {
                 const score = kw.length;
                 if (score > bestScore) {
@@ -106,177 +84,177 @@ function findProduct(text) {
     return bestMatch;
 }
 
-// ── Buscar categoría por keywords ─────────────────────
-
-function findCategory(text) {
-    const data = loadFlows();
-    const lower = text.toLowerCase();
-
-    for (const [id, cat] of Object.entries(data.category_responses || {})) {
-        for (const kw of cat.keywords) {
-            if (lower.includes(kw.toLowerCase())) {
-                return { id, ...cat };
-            }
-        }
-    }
-    return null;
-}
-
 // ══════════════════════════════════════════════════════
-//  MOTOR PRINCIPAL — Máquina de estados del embudo
+//  MOTOR PRINCIPAL — Mensajes interactivos
 // ══════════════════════════════════════════════════════
 
-/**
- * Genera respuesta basada en el estado de la conversación
- * 
- * Estados del embudo:
- *   new → catalog → product_info → payment → waiting_payment → delivered → review → done
- * 
- * El cliente puede saltar estados (ej: llegar directo pidiendo un producto)
- */
 async function generateResponse(conversationHistory, newMessage, conversationId) {
     const data = loadFlows();
     const convState = conversationId ? await getConversationState(conversationId) : { state: 'new', product: null };
     const state = convState.state;
     const text = newMessage;
+    const lower = text.toLowerCase().trim();
 
-    console.log(`   📍 Estado: ${state} | Producto: ${convState.product || 'ninguno'}`);
+    console.log(`   📍 Estado: ${state} | Input: "${text.substring(0, 40)}"`);
 
-    // ── SIEMPRE: Detectar si pide hablar con humano ───
+    // ── Botón: ver_catalogo ──
+    if (lower === 'ver_catalogo') {
+        return {
+            response: { type: 'list', body: '📋 *Nuestros productos* 🧑🏻💻\n\nElige una categoría para ver las opciones disponibles:', buttonLabel: 'Ver categorías', sections: [
+                { title: '🖥️ Software', rows: [
+                    { id: 'cat_office', title: 'Microsoft Office', description: 'Desde S/20 — Permanentes y 365' },
+                    { id: 'cat_windows', title: 'Windows', description: 'S/30 — Win 10/11 Pro' },
+                    { id: 'cat_antivirus', title: 'Antivirus', description: 'S/45 — ESET NOD32 23 meses' },
+                    { id: 'cat_canva', title: 'Canva Pro', description: 'S/15 — 12 meses' }
+                ]}
+            ]},
+            newState: 'catalog'
+        };
+    }
+
+    // ── Botón: categoría Office ──
+    if (lower === 'cat_office' || lower.includes('office') || lower.includes('word') || lower.includes('excel')) {
+        return {
+            response: { type: 'list', body: '✅ *Si tenemos Office disponible* 🧑🏻💻🙌🏻\n\nElige la versión que te interesa:', buttonLabel: 'Ver versiones', sections: [
+                { title: '🔑 Licencias Permanentes', rows: [
+                    { id: 'office_2016', title: 'Office 2016 Pro Plus', description: 'S/20 — Permanente 1 PC' },
+                    { id: 'office_2019', title: 'Office 2019 Pro Plus', description: 'S/25 — Permanente 1 PC' },
+                    { id: 'office_2021', title: 'Office 2021 Pro Plus', description: 'S/30 — Permanente 1 PC' },
+                    { id: 'office_2024', title: 'Office 2024 LTSC', description: 'S/35 — Permanente 1 PC' }
+                ]},
+                { title: '☁️ Office 365', rows: [
+                    { id: 'office_365_cuenta', title: 'Cuenta 365 Pro Plus', description: 'S/40 — 5 dispositivos' },
+                    { id: 'office_365_personal_invitacion', title: '365 Personal Invitación', description: 'S/70 — 12 meses' },
+                    { id: 'office_365_personal_licencia', title: '365 Personal Licencia', description: 'S/180 — 12 meses' }
+                ]}
+            ]},
+            newState: 'catalog'
+        };
+    }
+
+    // ── Botón: categoría Windows ──
+    if (lower === 'cat_windows' || lower.includes('windows') || lower.includes('win')) {
+        return {
+            response: { type: 'list', body: '✅ *Si tenemos Windows disponible* 🧑🏻💻🙌🏻\n\nElige la versión:', buttonLabel: 'Ver versiones', sections: [
+                { title: '🖥️ Windows', rows: [
+                    { id: 'windows_10', title: 'Windows 10 Pro', description: 'S/30 — Permanente 1 PC' },
+                    { id: 'windows_11', title: 'Windows 11 Pro', description: 'S/30 — Permanente 1 PC' }
+                ]}
+            ]},
+            newState: 'catalog'
+        };
+    }
+
+    // ── Botón: categoría Antivirus ──
+    if (lower === 'cat_antivirus' || lower.includes('antivirus') || lower.includes('eset') || lower.includes('virus')) {
+        const prod = data.products.eset;
+        return {
+            response: ['Si tenemos disponible 🧑🏻💻', { type: 'buttons', body: prod.info_message, buttons: [
+                { id: 'comprar_eset', title: '🛒 Comprar' },
+                { id: 'ver_catalogo', title: '📋 Ver más' }
+            ]}],
+            newState: 'product_info', product: 'eset'
+        };
+    }
+
+    // ── Botón: categoría Canva ──
+    if (lower === 'cat_canva' || lower.includes('canva')) {
+        const prod = data.products.canva_pro;
+        return {
+            response: ['Si tenemos disponible 🧑🏻💻', { type: 'buttons', body: prod.info_message, buttons: [
+                { id: 'comprar_canva_pro', title: '🛒 Comprar' },
+                { id: 'ver_catalogo', title: '📋 Ver más' }
+            ]}],
+            newState: 'product_info', product: 'canva_pro'
+        };
+    }
+
+    // ── Selección de producto específico (desde lista) ──
+    const product = findProduct(text);
+    if (product) {
+        return {
+            response: ['Si tenemos disponible 🧑🏻💻', { type: 'buttons', body: product.info_message, buttons: [
+                { id: `comprar_${product.id}`, title: '🛒 Comprar' },
+                { id: 'ver_catalogo', title: '📋 Ver más' }
+            ]}],
+            newState: 'product_info', product: product.id
+        };
+    }
+
+    // ── Botón: comprar (comprar_xxx) ──
+    if (lower.startsWith('comprar_')) {
+        const productId = lower.replace('comprar_', '');
+        const payMsg = data.payment_info;
+        const bonus = data.bonus_message || '';
+        return {
+            response: [
+                pick(data.confirm_purchase_responses),
+                payMsg,
+                bonus
+            ].filter(m => m),
+            newState: 'waiting_payment', product: productId
+        };
+    }
+
+    // ── Pago / comprobante ──
+    if (isPaymentProof(text)) {
+        return {
+            response: pick(data.payment_confirmed_responses),
+            newState: 'delivered', alertAdmin: true
+        };
+    }
+
+    // ── Hablar con humano ──
     const humanPhrases = ['hablar con una persona', 'hablar con alguien', 'persona real', 'agente'];
-    if (humanPhrases.some(p => text.toLowerCase().includes(p))) {
+    if (humanPhrases.some(p => lower.includes(p))) {
         return { response: 'Claro, dame un momento que te comunico con alguien 🤗🧑🏻💻', newState: state, escalate: true };
     }
 
-    // ── SIEMPRE: Si pregunta por métodos de pago ──────
-    if (isPaymentQuestion(text)) {
-        const payMsg = data.payment_info.replace('{trustpilot_url}', data.trustpilot_url);
-        return { response: payMsg, newState: 'payment' };
+    // ── Saludo → Botones principales ──
+    if (isGreeting(text) || state === 'new' || conversationHistory.length === 0) {
+        return {
+            response: { type: 'buttons', body: 'Hola buenas! 🤗\ncomo te podemos ayudar? 🙌🏻', buttons: [
+                { id: 'ver_catalogo', title: '📋 Ver productos' },
+                { id: 'cat_office', title: '📎 Office' },
+                { id: 'cat_windows', title: '🖥️ Windows' }
+            ]},
+            newState: 'catalog'
+        };
     }
 
-    // ── SIEMPRE: Si manda catálogo/precios ────────────
-    if (isCatalogRequest(text)) {
-        return { response: data.catalog_message, newState: 'catalog' };
+    // ── Afirmativo sin contexto ──
+    if (isAffirmative(text)) {
+        if (convState.product && data.products[convState.product]) {
+            const payMsg = data.payment_info;
+            return {
+                response: [pick(data.confirm_purchase_responses), payMsg],
+                newState: 'waiting_payment', product: convState.product
+            };
+        }
+        return {
+            response: { type: 'buttons', body: 'Que producto te interesa? 🤗', buttons: [
+                { id: 'ver_catalogo', title: '📋 Ver productos' },
+                { id: 'cat_office', title: '📎 Office' },
+                { id: 'cat_windows', title: '🖥️ Windows' }
+            ]},
+            newState: 'catalog'
+        };
     }
 
-    // ── SIEMPRE: Si menciona un producto específico ───
-    const product = findProduct(text);
-    if (product) {
-        return { response: ['Si tenemos disponible 🧑🏻💻', product.info_message], newState: 'product_info', product: product.id };
-    }
-
-    // ── SIEMPRE: Si menciona una categoría ────────────
-    const category = findCategory(text);
-    if (category) {
-        return { response: ['Si tenemos disponible 🧑🏻💻🙌🏻', category.message], newState: 'catalog' };
-    }
-
-    // ── Lógica por estado ─────────────────────────────
-
-    switch (state) {
-        case 'new':
-            // Primera vez → saludar
-            if (isGreeting(text) || conversationHistory.length === 0) {
-                const greeting = pick(data.greeting_responses);
-                return { response: greeting, newState: 'catalog' };
-            }
-            // Si no es saludo, mostrar catálogo
-            return { response: data.catalog_message, newState: 'catalog' };
-
-        case 'catalog':
-            // Estamos esperando que elija producto
-            if (isGreeting(text)) {
-                return { response: 'Dime, que producto estas buscando? 🤗🙌🏻', newState: 'catalog' };
-            }
-            if (isAffirmative(text)) {
-                return { response: data.catalog_message, newState: 'catalog' };
-            }
-            // No matcheó producto/categoría → mostrar catálogo
-            return { response: 'Mmm no estoy seguro a cuál te refieres 🤔\nque producto estas buscando? 🧑🏻💻', newState: 'catalog' };
-
-        case 'product_info':
-            // Le mostramos info del producto, esperamos confirmación
-            if (isAffirmative(text)) {
-                const confirmMsg = pick(data.confirm_purchase_responses);
-                const payMsg = data.payment_info;
-                const fullMsg = confirmMsg + '\n\n' + payMsg;
-                return { response: fullMsg, newState: 'waiting_payment' };
-            }
-            if (isFarewell(text)) {
-                const farewell = pick(data.farewell_responses).replace('{trustpilot_url}', data.trustpilot_url);
-                return { response: farewell, newState: 'done' };
-            }
-            // Tal vez quiere otro producto → ya se maneja arriba con findProduct
-            return { response: 'Te interesa? te paso los datos para completar la compra 😉🧑🏻💻', newState: 'product_info' };
-
-        case 'payment':
-            // Ya le dimos datos de pago
-            if (isPaymentProof(text)) {
-                const confirmed = pick(data.payment_confirmed_responses);
-                return { response: confirmed, newState: 'delivered', alertAdmin: true };
-            }
-            if (isAffirmative(text)) {
-                const waitMsg = pick(data.waiting_payment_responses);
-                return { response: waitMsg, newState: 'waiting_payment' };
-            }
-            return { response: pick(data.waiting_payment_responses), newState: 'waiting_payment' };
-
-        case 'waiting_payment':
-            // Esperando comprobante de pago
-            if (isPaymentProof(text)) {
-                const confirmed = pick(data.payment_confirmed_responses);
-                return { response: confirmed, newState: 'delivered', alertAdmin: true };
-            }
-            if (isGreeting(text)) {
-                return { response: 'Hola! 🤗 ya pudiste hacer el pago? 🧑🏻💻', newState: 'waiting_payment' };
-            }
-            return { response: 'Quedo atento a tu comprobante de pago 🤗 cuando lo tengas envíamelo por aquí 🧑🏻💻', newState: 'waiting_payment' };
-
-        case 'delivered':
-            // Ya se envió la licencia (manualmente por el admin)
-            if (isFarewell(text)) {
-                const farewell = pick(data.farewell_responses).replace('{trustpilot_url}', data.trustpilot_url);
-                return { response: farewell, newState: 'done' };
-            }
-            // Si tiene problemas con instalación
-            if (text.toLowerCase().includes('ayuda') || text.toLowerCase().includes('error') || text.toLowerCase().includes('no puedo') || text.toLowerCase().includes('problema')) {
-                return { response: 'Sin problema! cuéntame qué error te sale y te ayudo 🤗🧑🏻💻', newState: 'delivered', alertAdmin: true };
-            }
-            return { response: 'Todo bien con tu producto? si necesitas ayuda con la instalación me dices 🤗🧑🏻💻', newState: 'delivered' };
-
-        case 'done':
-        case 'review':
-            // Conversación terminada, si vuelve a escribir → nueva interacción
-            if (isGreeting(text)) {
-                const greeting = pick(data.greeting_responses);
-                return { response: greeting, newState: 'catalog' };
-            }
-            return { response: 'Hola de nuevo! 🤗 en qué te puedo ayudar? 🙌🏻', newState: 'catalog' };
-
-        default:
-            // Intentar fallback con OpenAI si está configurado
-            const openaiKey = process.env.OPENAI_API_KEY;
-            if (openaiKey && openaiKey !== 'sk-xxx' && openaiKey.length > 10) {
-                try {
-                    const openai = require('./openai');
-                    const aiResponse = await openai.generateResponse(conversationHistory, text);
-                    if (aiResponse) return { response: aiResponse, newState: state };
-                } catch (err) {
-                    console.warn('   ⚠️ OpenAI fallback falló:', err.message);
-                }
-            }
-            
-            // Si no hay OpenAI o falló, usar respuestas genéricas de fallback
-            const fallback = pick(data.fallback_responses) || 'Dame un momento que reviso eso 👍';
-            return { response: fallback, newState: state };
-    }
+    // ── Fallback: no entendió → botones ──
+    return {
+        response: { type: 'buttons', body: 'Mmm no estoy seguro a cuál te refieres 🤔\nque producto estas buscando? 🧑🏻💻', buttons: [
+            { id: 'ver_catalogo', title: '📋 Ver productos' },
+            { id: 'cat_office', title: '📎 Office' },
+            { id: 'cat_windows', title: '🖥️ Windows' }
+        ]},
+        newState: 'catalog'
+    };
 }
 
-// ── Exports para admin panel ──────────────────────────
+// ── Exports ──────────────────────────────────────────
 
-function getAllFlows() {
-    return loadFlows();
-}
+function getAllFlows() { return loadFlows(); }
 
 function saveFlows(newData) {
     try {

@@ -14,7 +14,7 @@ const api = axios.create({
 });
 
 /**
- * Enviar mensaje de texto a un número
+ * Enviar mensaje de texto simple
  */
 async function sendMessage(to, text) {
     try {
@@ -24,10 +24,82 @@ async function sendMessage(to, text) {
             type: 'text',
             text: { body: text }
         });
-        console.log(`📤 Mensaje enviado a ${to}: "${text.substring(0, 50)}..."`);
+        console.log(`📤 Texto enviado a ${to}`);
         return response.data;
     } catch (err) {
-        console.error('❌ Error enviando mensaje:', err.response?.data || err.message);
+        console.error('❌ Error enviando mensaje:', err.response?.data?.error?.message || err.message);
+        throw err;
+    }
+}
+
+/**
+ * Enviar mensaje con botones interactivos (máximo 3 botones)
+ */
+async function sendButtons(to, bodyText, buttons, headerText, footerText) {
+    try {
+        const interactive = {
+            type: 'button',
+            body: { text: bodyText },
+            action: {
+                buttons: buttons.map(btn => ({
+                    type: 'reply',
+                    reply: {
+                        id: btn.id,
+                        title: btn.title.substring(0, 20) // max 20 chars
+                    }
+                }))
+            }
+        };
+        if (headerText) interactive.header = { type: 'text', text: headerText };
+        if (footerText) interactive.footer = { text: footerText };
+
+        const response = await api.post('/messages', {
+            messaging_product: 'whatsapp',
+            to: to,
+            type: 'interactive',
+            interactive: interactive
+        });
+        console.log(`📤 Botones enviados a ${to}`);
+        return response.data;
+    } catch (err) {
+        console.error('❌ Error enviando botones:', err.response?.data?.error?.message || err.message);
+        throw err;
+    }
+}
+
+/**
+ * Enviar lista interactiva (hasta 10 opciones por sección)
+ */
+async function sendList(to, bodyText, buttonLabel, sections, headerText, footerText) {
+    try {
+        const interactive = {
+            type: 'list',
+            body: { text: bodyText },
+            action: {
+                button: buttonLabel.substring(0, 20),
+                sections: sections.map(section => ({
+                    title: section.title.substring(0, 24),
+                    rows: section.rows.map(row => ({
+                        id: row.id,
+                        title: row.title.substring(0, 24),
+                        description: (row.description || '').substring(0, 72)
+                    }))
+                }))
+            }
+        };
+        if (headerText) interactive.header = { type: 'text', text: headerText };
+        if (footerText) interactive.footer = { text: footerText };
+
+        const response = await api.post('/messages', {
+            messaging_product: 'whatsapp',
+            to: to,
+            type: 'interactive',
+            interactive: interactive
+        });
+        console.log(`📤 Lista enviada a ${to}`);
+        return response.data;
+    } catch (err) {
+        console.error('❌ Error enviando lista:', err.response?.data?.error?.message || err.message);
         throw err;
     }
 }
@@ -43,15 +115,12 @@ async function markAsRead(messageId) {
             message_id: messageId
         });
     } catch (err) {
-        // No es crítico si falla
         console.warn('⚠️ No se pudo marcar como leído:', err.message);
     }
 }
 
 /**
- * Enviar indicador de "escribiendo..." (typing)
- * Usa el endpoint oficial de Meta para mostrar el bubble de escritura.
- * Requiere el message_id del mensaje recibido del usuario.
+ * Enviar indicador de "escribiendo..."
  */
 async function sendTypingIndicator(messageId) {
     try {
@@ -59,14 +128,10 @@ async function sendTypingIndicator(messageId) {
             messaging_product: 'whatsapp',
             status: 'read',
             message_id: messageId,
-            typing_indicator: {
-                type: 'text'
-            }
+            typing_indicator: { type: 'text' }
         });
-        console.log('✍️ Indicador de escritura enviado');
     } catch (err) {
-        // No es crítico si falla — continuar sin typing
-        console.warn('⚠️ No se pudo enviar typing indicator:', err.response?.data?.error?.message || err.message);
+        // No crítico — silenciar
     }
 }
 
@@ -89,4 +154,4 @@ async function sendReaction(to, messageId, emoji) {
     }
 }
 
-module.exports = { sendMessage, markAsRead, sendTypingIndicator, sendReaction };
+module.exports = { sendMessage, sendButtons, sendList, markAsRead, sendTypingIndicator, sendReaction };
