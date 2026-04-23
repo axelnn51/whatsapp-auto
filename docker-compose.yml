@@ -44,7 +44,6 @@ services:
       - wa-network
     volumes:
       - ./backups:/app/backups
-      - ./app/src/ai/flows.json:/app/src/ai/flows.json
 
   # ── PostgreSQL ────────────────────────────────────────
   postgres:
