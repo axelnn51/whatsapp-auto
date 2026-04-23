@@ -48,7 +48,7 @@ async function generateResponse(conversationHistory, newMessage) {
     try {
         const response = await axios.post(url, payload, {
             headers: { 'Content-Type': 'application/json' },
-            timeout: 10000 // 10 segundos máximo
+            timeout: 30000 // 30 segundos — prompt grande con catálogo completo
         });
 
         const textResponse = response.data.candidates[0].content.parts[0].text;
@@ -65,11 +65,15 @@ async function generateResponse(conversationHistory, newMessage) {
         };
 
     } catch (err) {
-        console.error('❌ Error llamando a Gemini:', err.response?.data || err.message);
+        const errorDetail = err.response?.data?.error?.message || err.response?.data || err.message;
+        console.error('❌ Error llamando a Gemini:', errorDetail);
+        if (err.code === 'ECONNABORTED') {
+            console.error('⏰ Timeout — Gemini tardó más de 30s en responder');
+        }
         
-        // Fallback robusto en caso de error de red
+        // Fallback robusto en caso de error
         return {
-            response: "Dame un momento que verifico eso y te respondo 👍",
+            response: "Mmm déjame verificar eso y te confirmo 🤔🧑🏻💻",
             newState: 'catalog',
             product: null,
             escalate: false,
