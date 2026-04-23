@@ -6,12 +6,12 @@
  */
 
 const READ_DELAY_MIN = parseInt(process.env.READ_DELAY_MIN || '1');
-const READ_DELAY_MAX = parseInt(process.env.READ_DELAY_MAX || '3');
-const TYPING_DELAY_MIN = parseInt(process.env.TYPING_DELAY_MIN || '7');
-const TYPING_DELAY_MAX = parseInt(process.env.TYPING_DELAY_MAX || '15');
-const SPLIT_DELAY_MIN = parseInt(process.env.SPLIT_DELAY_MIN || '2');
-const SPLIT_DELAY_MAX = parseInt(process.env.SPLIT_DELAY_MAX || '5');
-const SPLIT_PROBABILITY = parseFloat(process.env.SPLIT_PROBABILITY || '0.3');
+const READ_DELAY_MAX = parseInt(process.env.READ_DELAY_MAX || '1');
+const TYPING_DELAY_MIN = parseInt(process.env.TYPING_DELAY_MIN || '2');
+const TYPING_DELAY_MAX = parseInt(process.env.TYPING_DELAY_MAX || '5');
+const SPLIT_DELAY_MIN = parseInt(process.env.SPLIT_DELAY_MIN || '1');
+const SPLIT_DELAY_MAX = parseInt(process.env.SPLIT_DELAY_MAX || '2');
+const SPLIT_PROBABILITY = parseFloat(process.env.SPLIT_PROBABILITY || '0');
 
 const HOURS_START = parseInt(process.env.BUSINESS_HOURS_START || '8');
 const HOURS_END = parseInt(process.env.BUSINESS_HOURS_END || '22');
