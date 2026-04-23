@@ -145,7 +145,7 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
     // ── SIEMPRE: Detectar si pide hablar con humano ───
     const humanPhrases = ['hablar con una persona', 'hablar con alguien', 'persona real', 'agente'];
     if (humanPhrases.some(p => text.toLowerCase().includes(p))) {
-        return { response: 'Claro, dame un momento que te comunico 👍', newState: state, escalate: true };
+        return { response: 'Claro, dame un momento que te comunico con alguien 🤗🧑🏻💻', newState: state, escalate: true };
     }
 
     // ── SIEMPRE: Si pregunta por métodos de pago ──────
@@ -186,13 +186,13 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
         case 'catalog':
             // Estamos esperando que elija producto
             if (isGreeting(text)) {
-                return { response: 'Dime, qué producto necesitas? 😊 O si quieres te muestro el catálogo completo', newState: 'catalog' };
+                return { response: 'Dime, que producto estas buscando? 🤗🙌🏻', newState: 'catalog' };
             }
             if (isAffirmative(text)) {
                 return { response: data.catalog_message, newState: 'catalog' };
             }
             // No matcheó producto/categoría → mostrar catálogo
-            return { response: 'No estoy seguro cuál producto te refieres 🤔\n\n' + data.catalog_message, newState: 'catalog' };
+            return { response: 'Mmm no estoy seguro a cuál te refieres 🤔\nque producto estas buscando? 🧑🏻💻', newState: 'catalog' };
 
         case 'product_info':
             // Le mostramos info del producto, esperamos confirmación
@@ -207,7 +207,7 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
                 return { response: farewell, newState: 'done' };
             }
             // Tal vez quiere otro producto → ya se maneja arriba con findProduct
-            return { response: 'Te interesa comprarlo? Te paso los datos de pago 👍\n\nO si buscas otro producto, dime cuál', newState: 'product_info' };
+            return { response: 'Te interesa? te paso los datos para completar la compra 😉🧑🏻💻', newState: 'product_info' };
 
         case 'payment':
             // Ya le dimos datos de pago
@@ -228,9 +228,9 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
                 return { response: confirmed, newState: 'delivered', alertAdmin: true };
             }
             if (isGreeting(text)) {
-                return { response: 'Hola! Seguimos con tu compra 😊 Ya pudiste hacer el pago?', newState: 'waiting_payment' };
+                return { response: 'Hola! 🤗 ya pudiste hacer el pago? 🧑🏻💻', newState: 'waiting_payment' };
             }
-            return { response: 'Quedo atento a tu comprobante de pago 👀 Cuando lo tengas, envíamelo por aquí', newState: 'waiting_payment' };
+            return { response: 'Quedo atento a tu comprobante de pago 🤗 cuando lo tengas envíamelo por aquí 🧑🏻💻', newState: 'waiting_payment' };
 
         case 'delivered':
             // Ya se envió la licencia (manualmente por el admin)
@@ -240,9 +240,9 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
             }
             // Si tiene problemas con instalación
             if (text.toLowerCase().includes('ayuda') || text.toLowerCase().includes('error') || text.toLowerCase().includes('no puedo') || text.toLowerCase().includes('problema')) {
-                return { response: 'Sin problema! Cuéntame qué error te sale y te ayudo paso a paso 🛠️', newState: 'delivered', alertAdmin: true };
+                return { response: 'Sin problema! cuéntame qué error te sale y te ayudo 🤗🧑🏻💻', newState: 'delivered', alertAdmin: true };
             }
-            return { response: 'Todo bien con tu licencia? Si necesitas ayuda con la instalación me dices 😊', newState: 'delivered' };
+            return { response: 'Todo bien con tu producto? si necesitas ayuda con la instalación me dices 🤗🧑🏻💻', newState: 'delivered' };
 
         case 'done':
         case 'review':
@@ -251,7 +251,7 @@ async function generateResponse(conversationHistory, newMessage, conversationId)
                 const greeting = pick(data.greeting_responses);
                 return { response: greeting, newState: 'catalog' };
             }
-            return { response: 'Hola de nuevo! 👋 En qué te puedo ayudar?', newState: 'catalog' };
+            return { response: 'Hola de nuevo! 🤗 en qué te puedo ayudar? 🙌🏻', newState: 'catalog' };
 
         default:
             // Intentar fallback con OpenAI si está configurado
